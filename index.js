@@ -39,7 +39,13 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     })
-
+    app.get('/users/:id', async(req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = {_id: new ObjectId(id)}
+      const user = await userCollection.findOne(query)
+      res.send(user)
+    })
     app.post('/users', async (req, res) => {
       const user = req.body;
       console.log('new user', user);
@@ -47,6 +53,21 @@ async function run() {
       res.send(result);
     })
 
+    app.put('/users/:id', async(req, res) =>{
+      const id = req.params.id;
+      const user = req.body;
+      console.log(id, user);
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedUser = {
+        $set:{
+          name: user.name,
+          email: user.email
+        }
+      }
+      const result = await userCollection.updateOne(filter, updatedUser, options);
+      res.send(result);
+    })
     app.delete('/users/:id', async(req, res)=>{
       const id = req.params.id;
       console.log('Please delete from the database', id);
